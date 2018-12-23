@@ -1,0 +1,30 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="RestoTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
+    </style>
+
+    <style name="h1">
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_margin">16dp</item>
+        <item name="android:textColor">@color/secondaryTextColor</item>
+    </style>
+
+    <style name="okButton" parent="RestoTheme">
+        <item name="android:background">@null</item>
+        <item name="android:textColor">@color/secondaryColor</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="RestoTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="RestoTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+</resources>

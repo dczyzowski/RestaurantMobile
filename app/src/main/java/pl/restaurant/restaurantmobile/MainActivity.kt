@@ -8,8 +8,6 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
@@ -17,10 +15,12 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
+import pl.restaurant.restaurantmobile.database.UsersDatabase
 import pl.restaurant.restaurantmobile.fragments.UserListFragment
 import pl.restaurant.restaurantmobile.models.User
-import pl.restaurant.restaurantmobile.models.UserQuickLoginContent
 import pl.restaurant.restaurantmobile.services.GetTime
 import pl.restaurant.restaurantmobile.services.GetUser
 import retrofit2.Retrofit
@@ -30,10 +30,15 @@ import java.io.IOException
 
 /**
  * A login screen that offers login via email/password.
- */
+*/
+
+
 class MainActivity : AppCompatActivity(), UserListFragment.OnListFragmentInteractionListener {
-    override fun onListFragmentInteraction(item: UserQuickLoginContent.UserQuickLogin?) {
-        Snackbar.make(cardView, "Hello", Snackbar.LENGTH_SHORT)
+
+    override fun onListFragmentInteraction(item: pl.restaurant.restaurantmobile.database.User) {
+        mAuthTask = UserLoginTask(null, null, item.authHeader)
+        mAuthTask!!.execute(null as Void?)
+        Snackbar.make(cardView, "Loguję jako: " + item.firstName, Snackbar.LENGTH_SHORT).show()
     }
 
     /**
@@ -43,12 +48,14 @@ class MainActivity : AppCompatActivity(), UserListFragment.OnListFragmentInterac
         const val baseURL = "https://resto-worker-api.herokuapp.com/"
     }
 
+    var db : UsersDatabase? = null
     private var mAuthTask: UserLoginTask? = null
 
 
     val retrofit = Retrofit.Builder()
             .baseUrl(baseURL)
             .addConverterFactory(GsonConverterFactory.create()).build()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,8 +76,8 @@ class MainActivity : AppCompatActivity(), UserListFragment.OnListFragmentInterac
             attemptLogin()
             true
         }
-    }
 
+    }
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -112,14 +119,14 @@ class MainActivity : AppCompatActivity(), UserListFragment.OnListFragmentInterac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true)
-            mAuthTask = UserLoginTask(emailStr, passwordStr)
+            mAuthTask = UserLoginTask(emailStr, passwordStr, null)
             mAuthTask!!.execute(null as Void?)
         }
     }
 
     private fun isPasswordValid(password: String): Boolean {
         //TODO: Replace this with your own logic
-        return password.length > 4
+        return password.length >= 3
     }
 
     /**
@@ -159,10 +166,10 @@ class MainActivity : AppCompatActivity(), UserListFragment.OnListFragmentInterac
      * the user.
      */
     @SuppressLint("StaticFieldLeak")
-    inner class UserLoginTask internal constructor(mUsername: String, mPassword: String) : AsyncTask<Void, Void, User>() {
+    inner class UserLoginTask internal constructor(mUsername: String?, mPassword: String?, header: String?) : AsyncTask<Void, Void, User>() {
 
         val base = "$mUsername:$mPassword"
-        private val authHeader = "Basic " + Base64.encodeToString(base.toByteArray(), Base64.NO_WRAP)
+        private var authHeader = header ?: "Basic " + Base64.encodeToString(base.toByteArray(), Base64.NO_WRAP)
 
         private var startTime = ""
         private var isWorking = false
@@ -186,6 +193,12 @@ class MainActivity : AppCompatActivity(), UserListFragment.OnListFragmentInterac
                             user.username = username
                             user.isActive = userIsHired
                             user.firstName = response.body()!!.firstName
+
+                            db = UsersDatabase.getInstance(this@MainActivity)
+                            if (db!!.userDao().loadUser(user.username).isEmpty())
+                                db!!.userDao().insertAll(pl.restaurant.restaurantmobile.database.User(
+                                        user.hashCode(), username, user.firstName, authHeader, null)
+                                )
                         }
                     } else return null
                 }else return null

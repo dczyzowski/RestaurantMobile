@@ -1,41 +1,52 @@
 package pl.restaurant.restaurantmobile
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 
 import pl.restaurant.restaurantmobile.fragments.UserListFragment.OnListFragmentInteractionListener
-import pl.restaurant.restaurantmobile.dummy.DummyContent.DummyItem
 
 import kotlinx.android.synthetic.main.fragment_user.view.*
-import kotlin.coroutines.experimental.coroutineContext
+import pl.restaurant.restaurantmobile.database.User
+import pl.restaurant.restaurantmobile.database.UsersDatabase
 
-/**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
- */
 class MyUserRecyclerViewAdapter(
-        private val mValues: List<DummyItem>,
+        private val mValues: List<User>,
         private val mListener: OnListFragmentInteractionListener?)
     : RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener
+    private val mOnLongClickListener: View.OnLongClickListener
     lateinit var context : Context
 
     init {
         mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as DummyItem
+            val item = v.tag as User
             // Notify the active callbacks interface (the activity, if the fragment is attached to
             // one) that an item has been selected.
             mListener?.onListFragmentInteraction(item)
         }
+        mOnLongClickListener = View.OnLongClickListener { v ->
+            val item = v.tag as User
+            // Notify the active callbacks interface (the activity, if the fragment is attached to
+            // one) that an item has been selected.
+            AlertDialog.Builder(context)
+                    .setCancelable(true)
+                    .setTitle(R.string.delete_title)
+                    .setMessage(context.getString(R.string.delete_prompt, item.firstName))
+                    .setNegativeButton(R.string.delete
+                    ) { _, _ ->
+                        UsersDatabase.getInstance(context)!!.userDao().delete(user = item) }.create().show()
+            true
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -47,12 +58,14 @@ class MyUserRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.setImageDrawable(ContextCompat.getDrawable(context, item.drawable))
-        holder.mContentView.text = item.content
+        if(item.avatar != null)
+            holder.mIdView.setImageDrawable(ContextCompat.getDrawable(context, item.avatar!!))
+        holder.mContentView.text = item.firstName
 
         with(holder.mView) {
             tag = item
             setOnClickListener(mOnClickListener)
+            setOnLongClickListener(mOnLongClickListener)
         }
     }
 

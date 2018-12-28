@@ -21,4 +21,7 @@
     <string name="stop_work">Finish working today</string>
     <string name="start_work">Start work</string>
     <string name="icon">Icon</string>
+    <string name="delete_title">Delete user</string>
+    <string name="delete_prompt">Do you want to delete user %1$s from fast login?</string>
+    <string name="delete">Delete</string>
 </resources>

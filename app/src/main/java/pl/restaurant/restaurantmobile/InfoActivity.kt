@@ -3,10 +3,11 @@ package pl.restaurant.restaurantmobile
 import android.annotation.SuppressLint
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import com.google.android.material.snackbar.Snackbar
 
 import kotlinx.android.synthetic.main.activity_info.*
 import kotlinx.android.synthetic.main.content_info.*

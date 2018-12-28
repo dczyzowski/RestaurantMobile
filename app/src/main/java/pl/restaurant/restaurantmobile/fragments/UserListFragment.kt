@@ -2,24 +2,24 @@ package pl.restaurant.restaurantmobile.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import pl.restaurant.restaurantmobile.MyUserRecyclerViewAdapter
 import pl.restaurant.restaurantmobile.R
-
-import pl.restaurant.restaurantmobile.models.UserQuickLoginContent
-import pl.restaurant.restaurantmobile.models.UserQuickLoginContent.UserQuickLogin
+import pl.restaurant.restaurantmobile.database.User
+import pl.restaurant.restaurantmobile.database.UsersDatabase
 
 /**
  * A fragment representing a list of Items.
  * Activities containing this fragment MUST implement the
  * [UserListFragment.OnListFragmentInteractionListener] interface.
  */
+
 class UserListFragment : Fragment() {
 
     // TODO: Customize parameters
@@ -42,11 +42,8 @@ class UserListFragment : Fragment() {
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                adapter = MyUserRecyclerViewAdapter(UserQuickLoginContent.ITEMS, listener)
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                adapter = MyUserRecyclerViewAdapter(UsersDatabase.getInstance(context)!!.userDao().getAll(), listener)
             }
         }
         return view
@@ -77,9 +74,10 @@ class UserListFragment : Fragment() {
      * [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html)
      * for more information.
      */
+
     interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: UserQuickLoginContent.UserQuickLogin?)
+        fun onListFragmentInteraction(item: User)
     }
 
     companion object {
